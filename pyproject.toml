@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel>=0.40.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bitcoin-trading-signals"
+version = "1.0.0"
+description = "Bitcoin Trading Signals API with Telegram Bot"
+requires-python = ">=3.9,<3.12"
+
+dependencies = [
+    "flask>=2.3.0,<3.0.0",
+    "requests>=2.31.0",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "ta>=0.10.0",
+    "pytz>=2023.3",
+    "flask-cors>=4.0.0",
+]

@@ -1,4 +1,4 @@
-# Arquivos Python
+# Python
 __pycache__/
 *.py[cod]
 *.pyo
@@ -53,7 +53,7 @@ htmlcov/
 .coverage.*
 coverage.xml
 
-# Local scripts
-setup.py
-cleanup.py
-project_status.py
+# Local scripts - keep for troubleshooting
+# setup.py
+# cleanup.py
+# project_status.py
