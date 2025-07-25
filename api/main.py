@@ -194,6 +194,30 @@ def get_crypto_data(crypto_key):
 
 # === ENDPOINTS ===
 
+@app.route('/')
+def home():
+    """Página inicial da API"""
+    return jsonify({
+        'service': 'BitDash Multi-Crypto Trading API',
+        'status': 'online',
+        'version': 'v2.1_fixed',
+        'endpoints': {
+            'health': '/api/health',
+            'cryptos': '/api/cryptos', 
+            'prices': '/api/<crypto>/price',
+            'signals': '/api/signals/all',
+            'keep_alive': '/keep-alive'
+        },
+        'supported_cryptos': ['bitcoin', 'ethereum', 'xrp'],
+        'timestamp': datetime.now().isoformat(),
+        'documentation': 'https://github.com/xavip1299/BitDash'
+    })
+
+@app.route('/favicon.ico')
+def favicon():
+    """Favicon para evitar 404s"""
+    return '', 204
+
 @app.route('/api/health')
 def health():
     """Health check"""
