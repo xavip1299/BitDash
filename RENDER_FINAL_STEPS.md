@@ -6,6 +6,7 @@
 - [x] Branch 'main' configurada
 - [x] **CORRIGIDO**: Dependências atualizadas para Python 3.11
 - [x] **ADICIONADO**: runtime.txt e pyproject.toml para compatibilidade
+- [x] **🎉 DEPLOY BEM-SUCEDIDO**: https://bitdash-9dnk.onrender.com
 
 ## 🌐 PRÓXIMO PASSO: RENDER.COM
 
@@ -49,11 +50,18 @@ PORT=10000
 
 ## 🧪 TESTAR APÓS DEPLOY
 
-### URLs para testar:
-```
-https://your-service-name.onrender.com/api/health
-https://your-service-name.onrender.com/api/bitcoin-price
-https://your-service-name.onrender.com/api/detailed-signal
+### ✅ STATUS ATUAL - API ONLINE!
+**URL da tua API**: https://bitdash-9dnk.onrender.com
+
+### 🎯 TESTES REALIZADOS:
+- ✅ **Health Check**: https://bitdash-9dnk.onrender.com/api/health (**FUNCIONA!**)
+- ❌ **Bitcoin Price**: Erro 500 (dependências)
+- ❌ **Detailed Signal**: Erro 500 (dependências) 
+- ❌ **Technical Analysis**: Erro 500 (dependências)
+
+### 🔧 COMANDO PARA TESTAR:
+```powershell
+.\test_api.ps1 -BaseUrl "https://bitdash-9dnk.onrender.com"
 ```
 
 ### Telegram Bot
