@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Bitcoin - Alertas de Preço (EUR)</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="xtb_trading_styles.css">
+    <link rel="stylesheet" href="improved_xtb_styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fab fa-bitcoin"></i> Dashboard Bitcoin (EUR)</h1>
+                <div class="header-actions">
+                    <div class="last-update">
+                        <span id="lastUpdate">Carregando...</span>
+                    </div>
+                    <button class="btn btn-sm" id="refreshBtn" onclick="dashboard.manualRefresh()">
+                        <i class="fas fa-sync-alt"></i> Atualizar
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Cards de Informações -->
+            <section class="info-cards">
+                <div class="card price-card">
+                    <div class="card-header">
+                        <h3>Preço Atual</h3>
+                        <i class="fab fa-bitcoin"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="price-display">
+                            <span class="price" id="currentPrice">€0.00</span>
+                            <span class="price-change" id="priceChange">+0.00%</span>
+                        </div>
+                        <div class="price-details">
+                            <p>24h High: <span id="high24h">€0.00</span></p>
+                            <p>24h Low: <span id="low24h">€0.00</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card alert-card">
+                    <div class="card-header">
+                        <h3>Alertas Ativos</h3>
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="alert-count">
+                            <span id="activeAlerts">0</span>
+                            <small>alertas configurados</small>
+                        </div>
+                        <div class="telegram-status" id="telegramStatus">
+                            <i class="fab fa-telegram-plane"></i>
+                            <span>Telegram: Desconectado</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="showAlertModal()">
+                            <i class="fas fa-plus"></i> Novo Alerta
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="showTelegramModal()">
+                            <i class="fab fa-telegram-plane"></i> Configurar Telegram
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card stats-card">
+                    <div class="card-header">
+                        <h3>Status & Estatísticas</h3>
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="connection-status" id="connectionStatus">
+                            <span class="status-indicator online"></span>
+                            <span>Conectado</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Volume 24h:</span>
+                            <span class="stat-value" id="volume24h">€0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Market Cap:</span>
+                            <span class="stat-value" id="marketCap">€0</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Gráfico -->
+            <section class="chart-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Gráfico de Preços</h3>
+                        <div class="chart-controls">
+                            <button class="btn btn-sm" onclick="updateChart('1h')">1H</button>
+                            <button class="btn btn-sm active" onclick="updateChart('24h')">24H</button>
+                            <button class="btn btn-sm" onclick="updateChart('7d')">7D</button>
+                            <button class="btn btn-sm" onclick="updateChart('30d')">30D</button>
+                            <button class="btn btn-sm" onclick="dashboard.setupChart()" style="background: #dc3545; color: white; margin-left: 10px;" title="Debug: Recriar gráfico">🔧</button>
+                        </div>
+                    </div>
+                    <div class="card-content chart-container">
+                        <canvas id="priceChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lista de Alertas -->
+            <section class="alerts-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Meus Alertas</h3>
+                    </div>
+                    <div class="card-content">
+                        <div id="alertsList" class="alerts-list">
+                            <div class="empty-state">
+                                <i class="fas fa-bell-slash"></i>
+                                <p>Nenhum alerta configurado</p>
+                                <small>Clique em "Novo Alerta" para começar</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal para Criar Alerta -->
+    <div id="alertModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Criar Novo Alerta</h2>
+                <button class="close-btn" onclick="hideAlertModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="alertForm">
+                    <div class="form-group">
+                        <label for="alertType">Tipo de Alerta:</label>
+                        <select id="alertType" required>
+                            <option value="above">Preço acima de</option>
+                            <option value="below">Preço abaixo de</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="alertPrice">Preço (EUR):</label>
+                        <input type="number" id="alertPrice" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="alertName">Nome do Alerta (opcional):</label>
+                        <input type="text" id="alertName" placeholder="Ex: Vender Bitcoin">
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="telegramAlert" checked>
+                            <span class="checkmark"></span>
+                            Enviar também para o Telegram
+                        </label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="hideAlertModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Criar Alerta</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Configurar Telegram -->
+    <div id="telegramModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fab fa-telegram-plane"></i> Configurar Telegram</h2>
+                <button class="close-btn" onclick="hideTelegramModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="telegram-setup">
+                    <h3>Como configurar:</h3>
+                    <ol class="setup-steps">
+                        <li>Abra o Telegram e procure por <strong>@BotFather</strong></li>
+                        <li>Digite <code>/newbot</code> e siga as instruções</li>
+                        <li>Copie o <strong>Token do Bot</strong> que o BotFather fornecer</li>
+                        <li>Inicie uma conversa com seu bot</li>
+                        <li>Digite <code>/start</code> para ativar o bot</li>
+                        <li>Cole o token abaixo e clique em "Conectar"</li>
+                    </ol>
+                </div>
+                <form id="telegramForm">
+                    <div class="form-group">
+                        <label for="botToken">Token do Bot:</label>
+                        <input type="text" id="botToken" placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz" required>
+                        <small>Exemplo: 1234567890:ABCdefGHIjklMNOpqrsTUVwxyz</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="chatId">Chat ID (opcional):</label>
+                        <input type="text" id="chatId" placeholder="Se souber seu Chat ID, cole aqui">
+                        <small>Deixe vazio para detectar automaticamente</small>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="hideTelegramModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fab fa-telegram-plane"></i> Conectar
+                        </button>
+                        <button type="button" class="btn btn-info" onclick="testTelegram()">
+                            <i class="fas fa-paper-plane"></i> Testar
+                        </button>
+                    </div>
+                </form>
+                <div class="telegram-info">
+                    <h4>Status da Conexão:</h4>
+                    <div id="telegramConnectionStatus">
+                        <span class="status-indicator offline"></span>
+                        <span>Não configurado</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificações -->
+    <div id="notifications" class="notifications"></div>
+
+    <script src="script.js"></script>
+    <script src="notifications.js"></script>
+    <script src="xtb_trading_analyzer.js"></script>
+    <script src="ultimate_bitcoin_trading_system.js"></script>
+</body>
+</html>
