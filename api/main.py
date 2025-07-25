@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Multi-Crypto Trading Signals API - Bitcoin, Ethereum & XRP
-Sistema expandido para análise de múltiplas criptomoedas
+Sistema otimizado com solução para rate limiting
 """
 
 from flask import Flask, jsonify, request
@@ -46,16 +46,18 @@ SUPPORTED_CRYPTOS = {
     }
 }
 
-# Cache melhorado por criptomoeda
+# Cache melhorado com TTL mais longos para evitar rate limiting
 cache = {}
+last_request_time = 0
+REQUEST_DELAY = 2  # 2 segundos entre requests para evitar rate limiting
 
 def init_cache():
     """Inicializar cache para todas as criptomoedas"""
     for crypto_key in SUPPORTED_CRYPTOS.keys():
         cache[crypto_key] = {
-            'price_data': {'data': None, 'timestamp': 0, 'ttl': 60},
-            'historical_data': {'data': None, 'timestamp': 0, 'ttl': 300},
-            'technical_analysis': {'data': None, 'timestamp': 0, 'ttl': 120}
+            'price_data': {'data': None, 'timestamp': 0, 'ttl': 120},  # 2 minutos (aumentado)
+            'historical_data': {'data': None, 'timestamp': 0, 'ttl': 900},  # 15 minutos (muito aumentado)
+            'technical_analysis': {'data': None, 'timestamp': 0, 'ttl': 300}  # 5 minutos (aumentado)
         }
 
 # Configurações de trading melhoradas
@@ -87,13 +89,90 @@ def set_cached_data(crypto: str, key: str, data):
         'ttl': cache[crypto][key]['ttl']
     }
 
+def rate_limit_delay():
+    """Aplicar delay para evitar rate limiting"""
+    global last_request_time
+    current_time = time.time()
+    time_since_last = current_time - last_request_time
+    
+    if time_since_last < REQUEST_DELAY:
+        sleep_time = REQUEST_DELAY - time_since_last
+        print(f"Rate limiting delay: {sleep_time:.1f}s")
+        time.sleep(sleep_time)
+    
+    last_request_time = time.time()
+
+def fetch_all_prices_batch():
+    """Buscar preços de todas as criptomoedas em uma única request"""
+    try:
+        # Verificar se temos cache válido para pelo menos uma crypto
+        cached_count = 0
+        for crypto_id in SUPPORTED_CRYPTOS.keys():
+            if get_cached_data(crypto_id, 'price_data'):
+                cached_count += 1
+        
+        # Se temos cache válido para todas, não fazer request
+        if cached_count == len(SUPPORTED_CRYPTOS):
+            return True
+        
+        rate_limit_delay()
+        
+        # Buscar todos os preços em uma única request
+        all_ids = ','.join([info['id'] for info in SUPPORTED_CRYPTOS.values()])
+        url = f"{COINGECKO_API}/simple/price"
+        params = {
+            'ids': all_ids,
+            'vs_currencies': 'usd,eur',
+            'include_24hr_change': 'true',
+            'include_24hr_vol': 'true',
+            'include_market_cap': 'true'
+        }
+        
+        response = requests.get(url, params=params, timeout=15)
+        response.raise_for_status()
+        
+        data = response.json()
+        
+        # Armazenar dados para cada criptomoeda
+        for crypto_key, crypto_info in SUPPORTED_CRYPTOS.items():
+            if crypto_info['id'] in data:
+                crypto_data = data[crypto_info['id']]
+                
+                result = {
+                    'price_usd': crypto_data['usd'],
+                    'price_eur': crypto_data['eur'],
+                    'change_24h': crypto_data['usd_24h_change'],
+                    'volume_24h': crypto_data['usd_24h_vol'],
+                    'market_cap': crypto_data['usd_market_cap'],
+                    'timestamp': datetime.now().isoformat(),
+                    'crypto': crypto_key,
+                    'symbol': crypto_info['symbol']
+                }
+                
+                set_cached_data(crypto_key, 'price_data', result)
+        
+        return True
+        
+    except Exception as e:
+        print(f"Erro ao buscar preços em batch: {e}")
+        return False
+
 def fetch_crypto_price(crypto_id: str):
     """Buscar preço atual de uma criptomoeda"""
     cached = get_cached_data(crypto_id, 'price_data')
     if cached:
         return cached
     
+    # Tentar buscar em batch primeiro
+    if fetch_all_prices_batch():
+        cached = get_cached_data(crypto_id, 'price_data')
+        if cached:
+            return cached
+    
+    # Fallback: buscar individual com delay
     try:
+        rate_limit_delay()
+        
         url = f"{COINGECKO_API}/simple/price"
         params = {
             'ids': SUPPORTED_CRYPTOS[crypto_id]['id'],
@@ -103,7 +182,7 @@ def fetch_crypto_price(crypto_id: str):
             'include_market_cap': 'true'
         }
         
-        response = requests.get(url, params=params, timeout=10)
+        response = requests.get(url, params=params, timeout=15)
         response.raise_for_status()
         
         data = response.json()
@@ -127,13 +206,50 @@ def fetch_crypto_price(crypto_id: str):
         print(f"Erro ao buscar preço {crypto_id}: {e}")
         return None
 
+def generate_simulated_historical_data(crypto_id: str, current_price: float):
+    """Gerar dados históricos simulados quando a API falhar"""
+    print(f"Gerando dados simulados para {crypto_id}")
+    
+    historical = []
+    base_price = current_price
+    
+    # Gerar 168 pontos (7 dias * 24 horas)
+    for i in range(168):
+        # Simulação de variação de preço (±3%)
+        variation = random.uniform(-0.03, 0.03)
+        price = base_price * (1 + variation)
+        
+        # Volume baseado no preço (simulação)
+        volume = random.uniform(1000000, 10000000) * (current_price / 50000)
+        
+        timestamp = int((datetime.now() - timedelta(hours=168-i)).timestamp() * 1000)
+        
+        historical.append({
+            'timestamp': timestamp,
+            'price': price,
+            'volume': volume,
+            'date': datetime.fromtimestamp(timestamp/1000).isoformat()
+        })
+        
+        base_price = price  # Próximo preço baseado no anterior
+    
+    return {
+        'crypto': crypto_id,
+        'symbol': SUPPORTED_CRYPTOS[crypto_id]['symbol'],
+        'data': historical,
+        'count': len(historical),
+        'period': "7 days (simulated)"
+    }
+
 def fetch_historical_data(crypto_id: str, days: int = 7):
-    """Buscar dados históricos de uma criptomoeda"""
+    """Buscar dados históricos de uma criptomoeda com fallback"""
     cached = get_cached_data(crypto_id, 'historical_data')
     if cached:
         return cached
     
     try:
+        rate_limit_delay()
+        
         url = f"{COINGECKO_API}/coins/{SUPPORTED_CRYPTOS[crypto_id]['id']}/market_chart"
         params = {
             'vs_currency': 'usd',
@@ -141,7 +257,7 @@ def fetch_historical_data(crypto_id: str, days: int = 7):
             'interval': 'hourly' if days <= 7 else 'daily'
         }
         
-        response = requests.get(url, params=params, timeout=15)
+        response = requests.get(url, params=params, timeout=20)
         response.raise_for_status()
         
         data = response.json()
@@ -170,6 +286,21 @@ def fetch_historical_data(crypto_id: str, days: int = 7):
         
         set_cached_data(crypto_id, 'historical_data', result)
         return result
+        
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code in [429, 401]:  # Rate limiting ou unauthorized
+            print(f"Rate limiting detectado para {crypto_id}, usando dados simulados")
+            
+            # Tentar obter preço atual para simular dados
+            price_data = fetch_crypto_price(crypto_id)
+            if price_data:
+                current_price = price_data['price_usd']
+                simulated_data = generate_simulated_historical_data(crypto_id, current_price)
+                set_cached_data(crypto_id, 'historical_data', simulated_data)
+                return simulated_data
+        
+        print(f"Erro HTTP ao buscar histórico {crypto_id}: {e}")
+        return None
         
     except Exception as e:
         print(f"Erro ao buscar histórico {crypto_id}: {e}")
@@ -209,7 +340,7 @@ def calculate_rsi(prices, period=14):
 def analyze_trend(prices, volumes):
     """Análise de tendência melhorada"""
     if len(prices) < 10:
-        return {'trend': 'NEUTRAL', 'strength': 0}
+        return {'trend': 'NEUTRAL', 'strength': 0, 'volume_analysis': 'NORMAL_VOLUME', 'short_ma': 0, 'medium_ma': 0}
     
     # Análise multi-timeframe
     short_prices = prices[-6:]  # 6 períodos recentes
@@ -230,11 +361,13 @@ def analyze_trend(prices, volumes):
         trend = 'NEUTRAL'
     
     # Análise de volume
-    recent_volumes = volumes[-6:]
-    avg_volume = sum(volumes[-20:]) / min(20, len(volumes))
-    current_volume = recent_volumes[-1] if recent_volumes else avg_volume
-    
-    volume_strength = 'HIGH_VOLUME' if current_volume > avg_volume * 1.5 else 'NORMAL_VOLUME'
+    if len(volumes) >= 20:
+        recent_volumes = volumes[-6:]
+        avg_volume = sum(volumes[-20:]) / min(20, len(volumes))
+        current_volume = recent_volumes[-1] if recent_volumes else avg_volume
+        volume_strength = 'HIGH_VOLUME' if current_volume > avg_volume * 1.5 else 'NORMAL_VOLUME'
+    else:
+        volume_strength = 'NORMAL_VOLUME'
     
     return {
         'trend': trend,
@@ -277,16 +410,25 @@ def calculate_confidence_factors(rsi, trend_data, price_change_24h):
 def generate_trading_signal(crypto_id: str):
     """Gerar sinal de trading melhorado para uma criptomoeda"""
     try:
-        # Buscar dados
+        # Buscar dados com cache otimizado
         price_data = fetch_crypto_price(crypto_id)
         historical_data = fetch_historical_data(crypto_id)
         
-        if not price_data or not historical_data:
+        if not price_data:
+            print(f"Falha ao obter preço para {crypto_id}")
+            return None
+            
+        if not historical_data:
+            print(f"Falha ao obter histórico para {crypto_id}")
             return None
         
         # Extrair preços e volumes
         prices = [item['price'] for item in historical_data['data']]
         volumes = [item['volume'] for item in historical_data['data']]
+        
+        if len(prices) < 10:
+            print(f"Dados insuficientes para {crypto_id}: {len(prices)} pontos")
+            return None
         
         # Cálculos técnicos
         rsi = calculate_rsi(prices)
@@ -385,11 +527,12 @@ def generate_trading_signal(crypto_id: str):
             'volatility_estimate': round(volatility * 100, 2),
             'market_cap': price_data['market_cap'],
             'timestamp': datetime.now().isoformat(),
-            'version': 'multi_crypto_v1.0'
+            'version': 'multi_crypto_v2.0_optimized',
+            'data_source': historical_data.get('period', '7 days')
         }
         
     except Exception as e:
-        print(f"Erro ao gerar sinal {crypto_id}: {e}")
+        print(f"Erro crítico ao gerar sinal {crypto_id}: {e}")
         return None
 
 # Keep-alive service
@@ -428,8 +571,8 @@ keep_alive_thread.start()
 @app.route('/')
 def home():
     return jsonify({
-        'service': 'Multi-Crypto Trading Signals API',
-        'version': 'multi_crypto_v1.0',
+        'service': 'Multi-Crypto Trading Signals API (Rate Limit Optimized)',
+        'version': 'multi_crypto_v2.0_optimized',
         'supported_cryptos': list(SUPPORTED_CRYPTOS.keys()),
         'endpoints': [
             '/api/health',
@@ -440,6 +583,13 @@ def home():
             '/api/signals/all',
             '/api/keep-alive-status'
         ],
+        'optimizations': [
+            'Extended cache TTL',
+            'Batch price requests',
+            'Rate limiting delays',
+            'Simulated fallback data',
+            'Improved error handling'
+        ],
         'timestamp': datetime.now().isoformat()
     })
 
@@ -447,17 +597,29 @@ def home():
 def health():
     return jsonify({
         'status': 'healthy',
-        'service': 'Multi-Crypto Trading Signals API',
-        'version': 'multi_crypto_v1.0',
+        'service': 'Multi-Crypto Trading Signals API (Rate Limit Optimized)',
+        'version': 'multi_crypto_v2.0_optimized',
         'supported_cryptos': len(SUPPORTED_CRYPTOS),
         'uptime_start': keep_alive_data['uptime_start'],
+        'cache_stats': {
+            'price_ttl': '2 minutes',
+            'historical_ttl': '15 minutes',
+            'analysis_ttl': '5 minutes'
+        },
+        'rate_limiting': {
+            'enabled': True,
+            'delay_between_requests': f'{REQUEST_DELAY}s',
+            'batch_requests': True,
+            'fallback_simulation': True
+        },
         'timestamp': datetime.now().isoformat(),
         'improvements': [
             'Multi-cryptocurrency support (BTC, ETH, XRP)',
-            'Individual crypto analysis',
-            'Unified signals endpoint',
-            'Enhanced technical analysis',
-            'Dynamic risk management'
+            'Rate limiting protection',
+            'Extended cache system',
+            'Batch API requests',
+            'Simulated fallback data',
+            'Enhanced error handling'
         ]
     })
 
@@ -524,6 +686,7 @@ def get_crypto_analysis(crypto):
             },
             'historical_summary': {
                 'periods': len(historical_data['data']),
+                'data_source': historical_data.get('period', '7 days'),
                 'price_range': {
                     'min': min(prices),
                     'max': max(prices),
@@ -538,28 +701,49 @@ def get_crypto_analysis(crypto):
 
 @app.route('/api/signals/all')
 def get_all_signals():
-    """Obter sinais de todas as criptomoedas"""
+    """Obter sinais de todas as criptomoedas com throttling"""
     signals = {}
+    errors = []
+    
+    # Buscar preços em batch primeiro
+    print("Buscando preços em batch...")
+    fetch_all_prices_batch()
     
     for crypto in SUPPORTED_CRYPTOS:
-        signal = generate_trading_signal(crypto)
-        if signal:
-            signals[crypto] = signal
+        try:
+            print(f"Gerando sinal para {crypto}...")
+            signal = generate_trading_signal(crypto)
+            if signal:
+                signals[crypto] = signal
+            else:
+                errors.append(f"Falha ao gerar sinal para {crypto}")
+                
+        except Exception as e:
+            errors.append(f"Erro em {crypto}: {str(e)}")
+        
+        # Pequeno delay entre sinais para evitar sobrecarga
+        if len(signals) < len(SUPPORTED_CRYPTOS) - 1:
+            time.sleep(0.5)
     
-    return jsonify({
+    result = {
         'signals': signals,
         'count': len(signals),
         'timestamp': datetime.now().isoformat(),
-        'version': 'multi_crypto_v1.0'
-    })
+        'version': 'multi_crypto_v2.0_optimized'
+    }
+    
+    if errors:
+        result['errors'] = errors
+    
+    return jsonify(result)
 
 @app.route('/api/keep-alive-status')
 def keep_alive_status():
     return jsonify({
-        'service': 'Multi-Crypto Trading Signals API',
+        'service': 'Multi-Crypto Trading Signals API (Rate Limit Optimized)',
         'status': 'active',
         'keep_alive': keep_alive_data,
-        'version': 'multi_crypto_v1.0',
+        'version': 'multi_crypto_v2.0_optimized',
         'timestamp': datetime.now().isoformat()
     })
 
