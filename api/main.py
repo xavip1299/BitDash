@@ -13,6 +13,7 @@ import time
 import os
 import random
 import math
+import threading
 
 app = Flask(__name__)
 CORS(app)
@@ -363,7 +364,69 @@ def root():
         'timestamp': datetime.now().isoformat()
     })
 
+# =================== KEEP-ALIVE SERVICE ===================
+
+def keep_alive_service():
+    """Manter API sempre ativa fazendo auto-ping para evitar spin down"""
+    # URL da própria API (será definido dinamicamente)
+    api_url = os.environ.get('API_URL', 'https://bitdash-9dnk.onrender.com')
+    
+    # Aguardar API estar completamente online
+    print("💓 Keep-alive: Aguardando API estar online...")
+    time.sleep(45)  # 45 segundos para garantir que a API está ativa
+    
+    print(f"💓 Keep-alive: Iniciado para {api_url}")
+    
+    while True:
+        try:
+            # Ping a cada 10 minutos (600 segundos)
+            time.sleep(600)
+            
+            # Fazer request ao health endpoint
+            response = requests.get(f"{api_url}/api/health", timeout=15)
+            
+            if response.status_code == 200:
+                current_time = datetime.now().strftime('%H:%M:%S')
+                print(f"💓 Keep-alive OK - {current_time}")
+            else:
+                print(f"⚠️ Keep-alive warning: HTTP {response.status_code}")
+                
+        except requests.exceptions.Timeout:
+            print(f"⚠️ Keep-alive timeout - continuando...")
+            # Em caso de timeout, aguardar menos tempo e tentar novamente
+            time.sleep(120)  # 2 minutos
+            
+        except requests.exceptions.RequestException as e:
+            print(f"⚠️ Keep-alive connection error: {str(e)[:100]}")
+            # Em caso de erro de conexão, aguardar e tentar novamente
+            time.sleep(180)  # 3 minutos
+            
+        except Exception as e:
+            print(f"❌ Keep-alive unexpected error: {str(e)[:100]}")
+            # Para erros inesperados, aguardar mais tempo
+            time.sleep(300)  # 5 minutos
+
+@app.route('/api/keep-alive-status')
+def keep_alive_status():
+    """Endpoint para verificar status do keep-alive"""
+    return jsonify({
+        'keep_alive': 'active',
+        'api_url': os.environ.get('API_URL', 'https://bitdash-9dnk.onrender.com'),
+        'ping_interval': '10 minutes',
+        'purpose': 'Prevent Render.com free tier spin down',
+        'timestamp': datetime.now().isoformat()
+    })
+
+# =================== MAIN EXECUTION ===================
+
 if __name__ == '__main__':
+    # Iniciar keep-alive service em thread separada
+    keep_alive_thread = threading.Thread(target=keep_alive_service, daemon=True)
+    keep_alive_thread.start()
+    
     port = int(os.environ.get('PORT', 10000))
     print(f"🚀 Iniciando Bitcoin Trading API na porta {port}")
+    print(f"💓 Keep-alive service iniciado em background")
+    print(f"🛡️ Proteção contra spin down ativada")
+    
     app.run(host='0.0.0.0', port=port, debug=False)
