@@ -1,0 +1,59 @@
+# Arquivos Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Local environment variables (keep .env for production)
+# .env
+
+# Backup files
+*.bak
+*.backup
+
+# Test files
+test_*
+*_test.py
+
+# Documentation builds
+docs/_build/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+
+# Local scripts
+setup.py
+cleanup.py
+project_status.py

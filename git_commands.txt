@@ -1,0 +1,11 @@
+
+# COMANDOS PARA EXECUTAR NO TERMINAL:
+
+cd "C:/Users/Pc/Desktop/dashbit/deploy"
+
+git init
+git add .
+git commit -m "Bitcoin Trading Signals - Deploy Ready"
+git remote add origin https://github.com/xavip1299/BitDash.git
+git branch -M main
+git push -u origin main
