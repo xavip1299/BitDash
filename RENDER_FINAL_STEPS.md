@@ -4,6 +4,8 @@
 - [x] Código enviado para GitHub: https://github.com/xavip1299/BitDash
 - [x] 17 ficheiros commitados com sucesso
 - [x] Branch 'main' configurada
+- [x] **CORRIGIDO**: Dependências atualizadas para Python 3.11
+- [x] **ADICIONADO**: runtime.txt e pyproject.toml para compatibilidade
 
 ## 🌐 PRÓXIMO PASSO: RENDER.COM
 
@@ -21,8 +23,8 @@ Name: bitdash-api
 Region: Frankfurt
 Branch: main
 Root Directory: (deixar vazio)
-Runtime: Python 3
-Build Command: pip install -r requirements.txt
+Runtime: Python 3.11.9
+Build Command: pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
 Start Command: python start.py
 ```
 
