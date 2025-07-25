@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-07-25T04:33:58.911365",
+  "test_type": "enhanced_api_improvements",
+  "old_score": 65.5,
+  "new_score": 61.6,
+  "improvement": -3.8999999999999986,
+  "classification": "🟡 CONFIABILIDADE MÉDIA",
+  "recommendation": "Adequado para testes limitados"
+}

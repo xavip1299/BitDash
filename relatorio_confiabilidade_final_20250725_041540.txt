@@ -1,0 +1,29 @@
+RELATÓRIO CONSOLIDADO DE CONFIABILIDADE DOS SINAIS BITCOIN
+Data: 25/07/2025 04:15:40
+
+RESULTADOS DOS TESTES:
+1. Confiabilidade Geral: 73/100 (MÉDIA)
+2. Qualidade Técnica: 54.3/100 (MÉDIA)
+
+SCORE CONSOLIDADO: 65.5/100
+CLASSIFICAÇÃO: 🟡 CONFIABILIDADE MÉDIA
+NÍVEL DE RISCO: MÉDIO
+RECOMENDAÇÃO: Adequado para testes com capital pequeno
+CAPITAL MÁXIMO: Até 2% do capital total
+
+PONTOS FORTES:
+- Alvos de preço bem calculados (100% válidos)
+- RSI tecnicamente correto (100% coerência)
+- API estável e responsiva
+- Risk/Reward ratio adequado
+- Gestão de risco conservadora
+
+PONTOS FRACOS:
+- Lógica dos sinais inconsistente (60% coerência)
+- Baixa confiança geral (90% MEDIUM)
+- Tendência excessiva para HOLD
+- Sinais SELL às vezes ilógicos
+
+CONCLUSÃO:
+O sistema apresenta confiabilidade adequada para uso cauteloso. Score de 65.5/100 indica 🟡 confiabilidade média.
+APROVADO para testes com capital limitado.

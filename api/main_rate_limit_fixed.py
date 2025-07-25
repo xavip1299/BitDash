@@ -49,18 +49,15 @@ SUPPORTED_CRYPTOS = {
 # Cache melhorado com TTL mais longos para evitar rate limiting
 cache = {}
 last_request_time = 0
-REQUEST_DELAY = 5  # 5 segundos entre requests (aumentado)
-global_price_cache = {}  # Cache global compartilhado para evitar requests duplicadas
-last_batch_request = 0
-BATCH_COOLDOWN = 300  # 5 minutos entre batch requests
+REQUEST_DELAY = 2  # 2 segundos entre requests para evitar rate limiting
 
 def init_cache():
     """Inicializar cache para todas as criptomoedas"""
     for crypto_key in SUPPORTED_CRYPTOS.keys():
         cache[crypto_key] = {
-            'price_data': {'data': None, 'timestamp': 0, 'ttl': 300},  # 5 minutos (aumentado)
-            'historical_data': {'data': None, 'timestamp': 0, 'ttl': 1800},  # 30 minutos (muito aumentado)
-            'technical_analysis': {'data': None, 'timestamp': 0, 'ttl': 600}  # 10 minutos (aumentado)
+            'price_data': {'data': None, 'timestamp': 0, 'ttl': 120},  # 2 minutos (aumentado)
+            'historical_data': {'data': None, 'timestamp': 0, 'ttl': 900},  # 15 minutos (muito aumentado)
+            'technical_analysis': {'data': None, 'timestamp': 0, 'ttl': 300}  # 5 minutos (aumentado)
         }
 
 # Configurações de trading melhoradas
@@ -76,17 +73,10 @@ TRADING_CONFIG = {
 
 def get_cached_data(crypto: str, key: str):
     """Retorna dados do cache se ainda válidos"""
-    try:
-        if crypto not in cache:
-            init_cache()
-        
-        if crypto in cache and key in cache[crypto]:
-            data = cache[crypto][key]
-            if time.time() - data['timestamp'] < data['ttl']:
-                return data['data']
-    except Exception as e:
-        print(f"Erro ao acessar cache para {crypto}.{key}: {e}")
-        return None
+    if crypto in cache and key in cache[crypto]:
+        data = cache[crypto][key]
+        if time.time() - data['timestamp'] < data['ttl']:
+            return data['data']
     return None
 
 def set_cached_data(crypto: str, key: str, data):
@@ -100,7 +90,7 @@ def set_cached_data(crypto: str, key: str, data):
     }
 
 def rate_limit_delay():
-    """Aplicar delay para evitar rate limiting - versão mais agressiva"""
+    """Aplicar delay para evitar rate limiting"""
     global last_request_time
     current_time = time.time()
     time_since_last = current_time - last_request_time
@@ -112,43 +102,19 @@ def rate_limit_delay():
     
     last_request_time = time.time()
 
-def is_batch_cache_valid():
-    """Verificar se o cache global de batch ainda é válido"""
-    global last_batch_request
-    return (time.time() - last_batch_request) < BATCH_COOLDOWN
-
 def fetch_all_prices_batch():
-    """Buscar preços de todas as criptomoedas em uma única request com cache global"""
-    global last_batch_request, global_price_cache
-    
+    """Buscar preços de todas as criptomoedas em uma única request"""
     try:
-        # Verificar se temos cache válido para todas as cryptos
-        all_cached = True
+        # Verificar se temos cache válido para pelo menos uma crypto
+        cached_count = 0
         for crypto_id in SUPPORTED_CRYPTOS.keys():
-            if not get_cached_data(crypto_id, 'price_data'):
-                all_cached = False
-                break
+            if get_cached_data(crypto_id, 'price_data'):
+                cached_count += 1
         
-        # Se todas estão em cache, não fazer request
-        if all_cached:
-            print("Todos os preços em cache válido")
+        # Se temos cache válido para todas, não fazer request
+        if cached_count == len(SUPPORTED_CRYPTOS):
             return True
         
-        # Verificar cooldown do batch
-        if is_batch_cache_valid():
-            print(f"Batch em cooldown por mais {BATCH_COOLDOWN - (time.time() - last_batch_request):.0f}s")
-            # Usar cache global se disponível
-            if global_price_cache:
-                for crypto_key, price_data in global_price_cache.items():
-                    if crypto_key in SUPPORTED_CRYPTOS:
-                        set_cached_data(crypto_key, 'price_data', price_data)
-                return True
-            else:
-                # Gerar dados simulados se não há cache
-                print("Gerando preços simulados devido ao cooldown")
-                return generate_simulated_prices()
-        
-        print("Fazendo batch request para preços...")
         rate_limit_delay()
         
         # Buscar todos os preços em uma única request
@@ -162,12 +128,10 @@ def fetch_all_prices_batch():
             'include_market_cap': 'true'
         }
         
-        response = requests.get(url, params=params, timeout=20)
+        response = requests.get(url, params=params, timeout=15)
         response.raise_for_status()
         
         data = response.json()
-        last_batch_request = time.time()  # Atualizar tempo do último batch
-        global_price_cache = {}  # Limpar cache global
         
         # Armazenar dados para cada criptomoeda
         for crypto_key, crypto_info in SUPPORTED_CRYPTOS.items():
@@ -186,92 +150,26 @@ def fetch_all_prices_batch():
                 }
                 
                 set_cached_data(crypto_key, 'price_data', result)
-                global_price_cache[crypto_key] = result  # Salvar no cache global
         
-        print(f"Batch successful: {len(global_price_cache)} preços obtidos")
         return True
-        
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 429:
-            print(f"Rate limiting em batch, gerando dados simulados")
-            return generate_simulated_prices()
-        else:
-            print(f"Erro HTTP em batch: {e}")
-            return generate_simulated_prices()
         
     except Exception as e:
         print(f"Erro ao buscar preços em batch: {e}")
-        return generate_simulated_prices()
-
-def generate_simulated_prices():
-    """Gerar preços simulados para todas as criptomoedas"""
-    try:
-        print("Gerando preços simulados para todas as cryptos")
-        
-        # Preços base aproximados (valores de referência)
-        base_prices = {
-            'bitcoin': {'usd': 115000, 'eur': 98000},
-            'ethereum': {'usd': 3600, 'eur': 3050},
-            'xrp': {'usd': 3.0, 'eur': 2.6}
-        }
-        
-        for crypto_key, crypto_info in SUPPORTED_CRYPTOS.items():
-            base = base_prices.get(crypto_key, {'usd': 1000, 'eur': 850})
-            
-            # Adicionar variação aleatória (±5%)
-            variation = random.uniform(-0.05, 0.05)
-            price_usd = base['usd'] * (1 + variation)
-            price_eur = base['eur'] * (1 + variation)
-            
-            # Simular dados de mercado
-            change_24h = random.uniform(-8.0, 8.0)
-            volume_24h = random.uniform(1000000000, 100000000000)  # 1B-100B
-            market_cap = price_usd * random.uniform(19000000, 21000000)  # Simular supply
-            
-            result = {
-                'price_usd': round(price_usd, 2),
-                'price_eur': round(price_eur, 2),
-                'change_24h': round(change_24h, 2),
-                'volume_24h': volume_24h,
-                'market_cap': market_cap,
-                'timestamp': datetime.now().isoformat(),
-                'crypto': crypto_key,
-                'symbol': crypto_info['symbol'],
-                'simulated': True
-            }
-            
-            set_cached_data(crypto_key, 'price_data', result)
-        
-        print("Preços simulados gerados para todas as cryptos")
-        return True
-        
-    except Exception as e:
-        print(f"Erro ao gerar preços simulados: {e}")
         return False
 
 def fetch_crypto_price(crypto_id: str):
-    """Buscar preço atual de uma criptomoeda com fallback robusto"""
-    # Garantir que o cache está inicializado
-    if crypto_id not in cache:
-        init_cache()
-    
+    """Buscar preço atual de uma criptomoeda"""
     cached = get_cached_data(crypto_id, 'price_data')
     if cached:
         return cached
     
-    # Sempre tentar batch primeiro
-    print(f"Cache miss para {crypto_id}, tentando batch...")
-    try:
-        if fetch_all_prices_batch():
-            cached = get_cached_data(crypto_id, 'price_data')
-            if cached:
-                return cached
-    except Exception as e:
-        print(f"Erro no batch request: {e}")
-        # Continuar para fallback individual
+    # Tentar buscar em batch primeiro
+    if fetch_all_prices_batch():
+        cached = get_cached_data(crypto_id, 'price_data')
+        if cached:
+            return cached
     
-    # Se batch falhou, tentar individual com rate limiting agressivo
-    print(f"Batch falhou, tentando request individual para {crypto_id}...")
+    # Fallback: buscar individual com delay
     try:
         rate_limit_delay()
         
@@ -284,7 +182,7 @@ def fetch_crypto_price(crypto_id: str):
             'include_market_cap': 'true'
         }
         
-        response = requests.get(url, params=params, timeout=20)
+        response = requests.get(url, params=params, timeout=15)
         response.raise_for_status()
         
         data = response.json()
@@ -304,119 +202,52 @@ def fetch_crypto_price(crypto_id: str):
         set_cached_data(crypto_id, 'price_data', result)
         return result
         
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 429:
-            print(f"Rate limiting individual para {crypto_id}, usando simulação")
-        else:
-            print(f"Erro HTTP individual {crypto_id}: {e}")
-        # Fallback para dados simulados
-        if not generate_simulated_prices():
-            # Se simulação falhar, criar dados mínimos
-            return create_fallback_data(crypto_id)
-        return get_cached_data(crypto_id, 'price_data')
-        
     except Exception as e:
-        print(f"Erro ao buscar preço individual {crypto_id}: {e}")
-        # Fallback para dados simulados
-        if not generate_simulated_prices():
-            # Se simulação falhar, criar dados mínimos
-            return create_fallback_data(crypto_id)
-        return get_cached_data(crypto_id, 'price_data')
+        print(f"Erro ao buscar preço {crypto_id}: {e}")
+        return None
 
-def create_fallback_data(crypto_id: str):
-    """Criar dados mínimos quando tudo falha"""
-    base_prices = {'bitcoin': 115000, 'ethereum': 3600, 'xrp': 3.0}
-    price = base_prices.get(crypto_id, 1000)
+def generate_simulated_historical_data(crypto_id: str, current_price: float):
+    """Gerar dados históricos simulados quando a API falhar"""
+    print(f"Gerando dados simulados para {crypto_id}")
+    
+    historical = []
+    base_price = current_price
+    
+    # Gerar 168 pontos (7 dias * 24 horas)
+    for i in range(168):
+        # Simulação de variação de preço (±3%)
+        variation = random.uniform(-0.03, 0.03)
+        price = base_price * (1 + variation)
+        
+        # Volume baseado no preço (simulação)
+        volume = random.uniform(1000000, 10000000) * (current_price / 50000)
+        
+        timestamp = int((datetime.now() - timedelta(hours=168-i)).timestamp() * 1000)
+        
+        historical.append({
+            'timestamp': timestamp,
+            'price': price,
+            'volume': volume,
+            'date': datetime.fromtimestamp(timestamp/1000).isoformat()
+        })
+        
+        base_price = price  # Próximo preço baseado no anterior
     
     return {
-        'price_usd': price,
-        'price_eur': price * 0.85,
-        'change_24h': 0.0,
-        'volume_24h': 1000000000,
-        'market_cap': price * 20000000,
-        'timestamp': datetime.now().isoformat(),
         'crypto': crypto_id,
         'symbol': SUPPORTED_CRYPTOS[crypto_id]['symbol'],
-        'fallback': True
+        'data': historical,
+        'count': len(historical),
+        'period': "7 days (simulated)"
     }
 
-def generate_simulated_historical_data(crypto_id: str, current_price: float = None):
-    """Gerar dados históricos simulados quando a API falhar ou current_price não disponível"""
-    try:
-        print(f"Gerando dados simulados para {crypto_id}")
-        
-        # Obter preço atual se não fornecido
-        if current_price is None:
-            price_data = get_cached_data(crypto_id, 'price_data')
-            if price_data and price_data.get('price_usd'):
-                current_price = price_data['price_usd']
-            else:
-                # Preços base por crypto
-                base_prices = {
-                    'bitcoin': 115000,
-                    'ethereum': 3600,
-                    'xrp': 3.0
-                }
-                current_price = base_prices.get(crypto_id, 1000)
-        
-        historical = []
-        base_price = current_price
-        
-        # Gerar 168 pontos (7 dias * 24 horas)
-        for i in range(168):
-            # Simulação de variação de preço (±3%)
-            variation = random.uniform(-0.03, 0.03)
-            price = base_price * (1 + variation)
-            
-            # Volume baseado no preço (simulação)
-            volume = random.uniform(1000000, 10000000) * (current_price / 50000)
-            
-            timestamp = int((datetime.now() - timedelta(hours=168-i)).timestamp() * 1000)
-            
-            historical.append({
-                'timestamp': timestamp,
-                'price': round(price, 2 if price > 1 else 6),
-                'volume': volume,
-                'date': datetime.fromtimestamp(timestamp/1000).isoformat()
-            })
-            
-            base_price = price  # Próximo preço baseado no anterior
-        
-        result = {
-            'crypto': crypto_id,
-            'symbol': SUPPORTED_CRYPTOS[crypto_id]['symbol'],
-            'data': historical,
-            'count': len(historical),
-            'period': "7 days (simulated)",
-            'timestamp': datetime.now().isoformat(),
-            'simulated': True,
-            'base_price': current_price
-        }
-        
-        # Cache simulado por 10 minutos
-        set_cached_data(crypto_id, 'historical_data', result, ttl=600)
-        return result
-        
-    except Exception as e:
-        print(f"Erro ao gerar dados históricos simulados para {crypto_id}: {e}")
-        return {
-            'crypto': crypto_id,
-            'symbol': SUPPORTED_CRYPTOS[crypto_id]['symbol'],
-            'data': [],
-            'count': 0,
-            'period': "7 days",
-            'error': str(e),
-            'simulated': True
-        }
-
 def fetch_historical_data(crypto_id: str, days: int = 7):
-    """Buscar dados históricos de uma criptomoeda com fallback robusto"""
+    """Buscar dados históricos de uma criptomoeda com fallback"""
     cached = get_cached_data(crypto_id, 'historical_data')
     if cached:
         return cached
     
     try:
-        print(f"Buscando dados históricos para {crypto_id} ({days} dias)...")
         rate_limit_delay()
         
         url = f"{COINGECKO_API}/coins/{SUPPORTED_CRYPTOS[crypto_id]['id']}/market_chart"
@@ -426,25 +257,21 @@ def fetch_historical_data(crypto_id: str, days: int = 7):
             'interval': 'hourly' if days <= 7 else 'daily'
         }
         
-        response = requests.get(url, params=params, timeout=25)
+        response = requests.get(url, params=params, timeout=20)
         response.raise_for_status()
         
         data = response.json()
         
-        if not data.get('prices'):
-            print(f"Dados históricos vazios para {crypto_id}, usando simulação")
-            return generate_simulated_historical_data(crypto_id, None)
-        
         # Processar dados históricos
         prices = data['prices']
-        volumes = data.get('total_volumes', [])
+        volumes = data['total_volumes']
         
         historical = []
         for i, (timestamp, price) in enumerate(prices):
             volume = volumes[i][1] if i < len(volumes) else 0
             historical.append({
                 'timestamp': timestamp,
-                'price': round(price, 2 if price > 1 else 6),
+                'price': price,
                 'volume': volume,
                 'date': datetime.fromtimestamp(timestamp/1000).isoformat()
             })
@@ -454,25 +281,30 @@ def fetch_historical_data(crypto_id: str, days: int = 7):
             'symbol': SUPPORTED_CRYPTOS[crypto_id]['symbol'],
             'data': historical,
             'count': len(historical),
-            'period': f"{days} days",
-            'timestamp': datetime.now().isoformat()
+            'period': f"{days} days"
         }
         
-        # Cache por 30 minutos
-        set_cached_data(crypto_id, 'historical_data', result, ttl=1800)
+        set_cached_data(crypto_id, 'historical_data', result)
         return result
         
     except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 429:
-            print(f"Rate limiting histórico para {crypto_id}, usando simulação")
-            return generate_simulated_historical_data(crypto_id, None)
-        else:
-            print(f"Erro HTTP histórico {crypto_id}: {e}")
-            return generate_simulated_historical_data(crypto_id, None)
+        if e.response.status_code in [429, 401]:  # Rate limiting ou unauthorized
+            print(f"Rate limiting detectado para {crypto_id}, usando dados simulados")
+            
+            # Tentar obter preço atual para simular dados
+            price_data = fetch_crypto_price(crypto_id)
+            if price_data:
+                current_price = price_data['price_usd']
+                simulated_data = generate_simulated_historical_data(crypto_id, current_price)
+                set_cached_data(crypto_id, 'historical_data', simulated_data)
+                return simulated_data
+        
+        print(f"Erro HTTP ao buscar histórico {crypto_id}: {e}")
+        return None
         
     except Exception as e:
         print(f"Erro ao buscar histórico {crypto_id}: {e}")
-        return generate_simulated_historical_data(crypto_id, None)
+        return None
 
 def calculate_rsi(prices, period=14):
     """Calcular RSI melhorado"""
@@ -932,11 +764,5 @@ def technical_analysis():
     return get_crypto_analysis('bitcoin')
 
 if __name__ == '__main__':
-    # Inicializar cache no startup
-    print("🚀 Inicializando API Multi-Crypto...")
-    init_cache()
-    print("✅ Cache inicializado para todas as criptomoedas")
-    
     port = int(os.environ.get('PORT', 5000))
-    print(f"🌐 Servidor iniciando na porta {port}")
     app.run(host='0.0.0.0', port=port, debug=False)

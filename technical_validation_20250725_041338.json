@@ -1,0 +1,122 @@
+{
+  "timestamp": "2025-07-25T04:13:38.911503",
+  "analyses_collected": 5,
+  "rsi_coherence": false,
+  "logic_coherence": 0,
+  "target_validity": 0,
+  "overall_score": 0.0,
+  "classification": "🔴 QUALIDADE BAIXA",
+  "recommendation": "Indicadores não confiáveis",
+  "raw_analyses": [
+    {
+      "indicators": {
+        "momentum": "BEARISH",
+        "rsi": 24.35,
+        "rsi_signal": "OVERSOLD",
+        "sma_20": 120649.67,
+        "sma_50": 112664.63
+      },
+      "market_data": {
+        "change_24h": 0.0,
+        "market_cap_eur": 1650000000000,
+        "volume_24h_eur": 25000000000
+      },
+      "price": 85000.0,
+      "support_resistance": {
+        "resistance": 125736.73,
+        "support": 106018.73
+      },
+      "timestamp": "2025-07-25T03:13:37.118347",
+      "trend": "SIDEWAYS",
+      "collection_time": "2025-07-25T04:13:38.150070"
+    },
+    {
+      "indicators": {
+        "momentum": "BULLISH",
+        "rsi": 43.64,
+        "rsi_signal": "NEUTRAL",
+        "sma_20": 77942.12,
+        "sma_50": 79406.21
+      },
+      "market_data": {
+        "change_24h": 0.0,
+        "market_cap_eur": 1650000000000,
+        "volume_24h_eur": 25000000000
+      },
+      "price": 85000.0,
+      "support_resistance": {
+        "resistance": 81867.91,
+        "support": 74639.19
+      },
+      "timestamp": "2025-07-25T03:13:37.321674",
+      "trend": "SIDEWAYS",
+      "collection_time": "2025-07-25T04:13:38.352772"
+    },
+    {
+      "indicators": {
+        "momentum": "BULLISH",
+        "rsi": 75.68,
+        "rsi_signal": "OVERBOUGHT",
+        "sma_20": 84665.25,
+        "sma_50": 82588.9
+      },
+      "market_data": {
+        "change_24h": 0.0,
+        "market_cap_eur": 1650000000000,
+        "volume_24h_eur": 25000000000
+      },
+      "price": 85000.0,
+      "support_resistance": {
+        "resistance": 96548.4,
+        "support": 77362.02
+      },
+      "timestamp": "2025-07-25T03:13:37.455992",
+      "trend": "UPTREND",
+      "collection_time": "2025-07-25T04:13:38.487149"
+    },
+    {
+      "indicators": {
+        "momentum": "BEARISH",
+        "rsi": 43.93,
+        "rsi_signal": "NEUTRAL",
+        "sma_20": 93931.5,
+        "sma_50": 98402.1
+      },
+      "market_data": {
+        "change_24h": 0.0,
+        "market_cap_eur": 1650000000000,
+        "volume_24h_eur": 25000000000
+      },
+      "price": 85000.0,
+      "support_resistance": {
+        "resistance": 99584.37,
+        "support": 86502.71
+      },
+      "timestamp": "2025-07-25T03:13:37.653237",
+      "trend": "DOWNTREND",
+      "collection_time": "2025-07-25T04:13:38.686161"
+    },
+    {
+      "indicators": {
+        "momentum": "BEARISH",
+        "rsi": 45.4,
+        "rsi_signal": "NEUTRAL",
+        "sma_20": 98796.24,
+        "sma_50": 94040.88
+      },
+      "market_data": {
+        "change_24h": 0.0,
+        "market_cap_eur": 1650000000000,
+        "volume_24h_eur": 25000000000
+      },
+      "price": 85000.0,
+      "support_resistance": {
+        "resistance": 105575.34,
+        "support": 96222.92
+      },
+      "timestamp": "2025-07-25T03:13:37.874651",
+      "trend": "SIDEWAYS",
+      "collection_time": "2025-07-25T04:13:38.908659"
+    }
+  ]
+}

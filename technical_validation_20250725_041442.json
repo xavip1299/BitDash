@@ -1,0 +1,97 @@
+{
+  "timestamp": "2025-07-25T04:14:42.279154",
+  "analyses_collected": 5,
+  "rsi_coherence": true,
+  "logic_coherence": 60.0,
+  "target_validity": 100.0,
+  "overall_score": 54.3,
+  "classification": "🟠 QUALIDADE MÉDIA",
+  "recommendation": "Indicadores adequados mas requerem cautela",
+  "raw_analyses": [
+    {
+      "confidence": "MEDIUM",
+      "current_price": 85000.0,
+      "indicators": {
+        "rsi": 49.44,
+        "rsi_signal": "NEUTRAL",
+        "sma_20": 70056.06,
+        "sma_50": 85000.0,
+        "trend": "SIDEWAYS"
+      },
+      "score": 60,
+      "signal": "BUY",
+      "stop_loss": 80750.0,
+      "take_profit": 93500.0,
+      "timestamp": "2025-07-25T03:14:40.616345",
+      "collection_time": "2025-07-25T04:14:41.656434"
+    },
+    {
+      "confidence": "MEDIUM",
+      "current_price": 85000.0,
+      "indicators": {
+        "rsi": 44.2,
+        "rsi_signal": "NEUTRAL",
+        "sma_20": 86263.59,
+        "sma_50": 85000.0,
+        "trend": "SIDEWAYS"
+      },
+      "score": 50,
+      "signal": "HOLD",
+      "stop_loss": 82450.0,
+      "take_profit": 89250.0,
+      "timestamp": "2025-07-25T03:14:40.807499",
+      "collection_time": "2025-07-25T04:14:41.841972"
+    },
+    {
+      "confidence": "MEDIUM",
+      "current_price": 85000.0,
+      "indicators": {
+        "rsi": 32.52,
+        "rsi_signal": "NEUTRAL",
+        "sma_20": 89865.32,
+        "sma_50": 85000.0,
+        "trend": "SIDEWAYS"
+      },
+      "score": 40,
+      "signal": "SELL",
+      "stop_loss": 89250.0,
+      "take_profit": 76500.0,
+      "timestamp": "2025-07-25T03:14:40.951971",
+      "collection_time": "2025-07-25T04:14:41.984786"
+    },
+    {
+      "confidence": "MEDIUM",
+      "current_price": 85000.0,
+      "indicators": {
+        "rsi": 55.57,
+        "rsi_signal": "NEUTRAL",
+        "sma_20": 80301.15,
+        "sma_50": 85000.0,
+        "trend": "SIDEWAYS"
+      },
+      "score": 50,
+      "signal": "HOLD",
+      "stop_loss": 82450.0,
+      "take_profit": 89250.0,
+      "timestamp": "2025-07-25T03:14:41.092654",
+      "collection_time": "2025-07-25T04:14:42.123671"
+    },
+    {
+      "confidence": "MEDIUM",
+      "current_price": 85000.0,
+      "indicators": {
+        "rsi": 68.01,
+        "rsi_signal": "NEUTRAL",
+        "sma_20": 94652.97,
+        "sma_50": 85000.0,
+        "trend": "SIDEWAYS"
+      },
+      "score": 50,
+      "signal": "HOLD",
+      "stop_loss": 82450.0,
+      "take_profit": 89250.0,
+      "timestamp": "2025-07-25T03:14:41.232470",
+      "collection_time": "2025-07-25T04:14:42.268185"
+    }
+  ]
+}

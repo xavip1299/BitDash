@@ -1,0 +1,414 @@
+{
+  "timestamp": "2025-07-25T04:11:38.642037",
+  "total_signals_collected": 10,
+  "test_results": {
+    "signal_distribution": {
+      "SELL": 3,
+      "HOLD": 5,
+      "BUY": 2
+    },
+    "confidence_distribution": {
+      "MEDIUM": 9,
+      "HIGH": 1
+    },
+    "score_stats": {
+      "mean": 50,
+      "median": 50.0,
+      "min": 40,
+      "max": 70,
+      "stdev": 9.428090415820634
+    }
+  },
+  "signals_data": [
+    {
+      "confidence": "MEDIUM",
+      "current_price": 85000.0,
+      "indicators": {
+        "rsi": 36.09,
+        "rsi_signal": "NEUTRAL",
+        "sma_20": 70584.65,
+        "sma_50": 85000.0,
+        "trend": "SIDEWAYS"
+      },
+      "score": 40,
+      "signal": "SELL",
+      "stop_loss": 89250.0,
+      "take_profit": 76500.0,
+      "timestamp": "2025-07-25T03:11:07.563341",
+      "collection_time": "2025-07-25T04:11:08.594467",
+      "collection_order": 1,
+      "tech_analysis": {
+        "indicators": {
+          "momentum": "BULLISH",
+          "rsi": 34.65,
+          "rsi_signal": "NEUTRAL",
+          "sma_20": 83902.18,
+          "sma_50": 88462.84
+        },
+        "market_data": {
+          "change_24h": 0.0,
+          "market_cap_eur": 1650000000000,
+          "volume_24h_eur": 25000000000
+        },
+        "price": 85000.0,
+        "support_resistance": {
+          "resistance": 93496.35,
+          "support": 74889.95
+        },
+        "timestamp": "2025-07-25T03:11:07.783091",
+        "trend": "SIDEWAYS"
+      }
+    },
+    {
+      "confidence": "MEDIUM",
+      "current_price": 85000.0,
+      "indicators": {
+        "rsi": 60.5,
+        "rsi_signal": "NEUTRAL",
+        "sma_20": 80009.8,
+        "sma_50": 85000.0,
+        "trend": "SIDEWAYS"
+      },
+      "score": 50,
+      "signal": "HOLD",
+      "stop_loss": 82450.0,
+      "take_profit": 89250.0,
+      "timestamp": "2025-07-25T03:11:10.929668",
+      "collection_time": "2025-07-25T04:11:11.961215",
+      "collection_order": 2,
+      "tech_analysis": {
+        "indicators": {
+          "momentum": "BULLISH",
+          "rsi": 61.94,
+          "rsi_signal": "NEUTRAL",
+          "sma_20": 70077.89,
+          "sma_50": 75230.87
+        },
+        "market_data": {
+          "change_24h": 0.0,
+          "market_cap_eur": 1650000000000,
+          "volume_24h_eur": 25000000000
+        },
+        "price": 85000.0,
+        "support_resistance": {
+          "resistance": 72940.72,
+          "support": 66283.48
+        },
+        "timestamp": "2025-07-25T03:11:11.095057",
+        "trend": "SIDEWAYS"
+      }
+    },
+    {
+      "confidence": "HIGH",
+      "current_price": 85000.0,
+      "indicators": {
+        "rsi": 27.36,
+        "rsi_signal": "OVERSOLD",
+        "sma_20": 85349.88,
+        "sma_50": 85000.0,
+        "trend": "SIDEWAYS"
+      },
+      "score": 70,
+      "signal": "BUY",
+      "stop_loss": 80750.0,
+      "take_profit": 93500.0,
+      "timestamp": "2025-07-25T03:11:14.250379",
+      "collection_time": "2025-07-25T04:11:15.285395",
+      "collection_order": 3,
+      "tech_analysis": {
+        "indicators": {
+          "momentum": "BULLISH",
+          "rsi": 56.36,
+          "rsi_signal": "NEUTRAL",
+          "sma_20": 80705.65,
+          "sma_50": 81789.24
+        },
+        "market_data": {
+          "change_24h": 0.0,
+          "market_cap_eur": 1650000000000,
+          "volume_24h_eur": 25000000000
+        },
+        "price": 85000.0,
+        "support_resistance": {
+          "resistance": 86890.54,
+          "support": 74806.86
+        },
+        "timestamp": "2025-07-25T03:11:14.404472",
+        "trend": "SIDEWAYS"
+      }
+    },
+    {
+      "confidence": "MEDIUM",
+      "current_price": 85000.0,
+      "indicators": {
+        "rsi": 45.62,
+        "rsi_signal": "NEUTRAL",
+        "sma_20": 90398.13,
+        "sma_50": 85000.0,
+        "trend": "SIDEWAYS"
+      },
+      "score": 50,
+      "signal": "HOLD",
+      "stop_loss": 82450.0,
+      "take_profit": 89250.0,
+      "timestamp": "2025-07-25T03:11:17.543499",
+      "collection_time": "2025-07-25T04:11:18.575075",
+      "collection_order": 4,
+      "tech_analysis": {
+        "indicators": {
+          "momentum": "BEARISH",
+          "rsi": 43.36,
+          "rsi_signal": "NEUTRAL",
+          "sma_20": 101481.23,
+          "sma_50": 90969.54
+        },
+        "market_data": {
+          "change_24h": 0.0,
+          "market_cap_eur": 1650000000000,
+          "volume_24h_eur": 25000000000
+        },
+        "price": 85000.0,
+        "support_resistance": {
+          "resistance": 106415.95,
+          "support": 98211.83
+        },
+        "timestamp": "2025-07-25T03:11:17.699606",
+        "trend": "SIDEWAYS"
+      }
+    },
+    {
+      "confidence": "MEDIUM",
+      "current_price": 85000.0,
+      "indicators": {
+        "rsi": 42.43,
+        "rsi_signal": "NEUTRAL",
+        "sma_20": 78295.2,
+        "sma_50": 85000.0,
+        "trend": "SIDEWAYS"
+      },
+      "score": 50,
+      "signal": "HOLD",
+      "stop_loss": 82450.0,
+      "take_profit": 89250.0,
+      "timestamp": "2025-07-25T03:11:20.908938",
+      "collection_time": "2025-07-25T04:11:21.943013",
+      "collection_order": 5,
+      "tech_analysis": {
+        "indicators": {
+          "momentum": "BULLISH",
+          "rsi": 42.77,
+          "rsi_signal": "NEUTRAL",
+          "sma_20": 72579.86,
+          "sma_50": 80660.32
+        },
+        "market_data": {
+          "change_24h": 0.0,
+          "market_cap_eur": 1650000000000,
+          "volume_24h_eur": 25000000000
+        },
+        "price": 85000.0,
+        "support_resistance": {
+          "resistance": 75642.75,
+          "support": 66158.25
+        },
+        "timestamp": "2025-07-25T03:11:21.062502",
+        "trend": "SIDEWAYS"
+      }
+    },
+    {
+      "confidence": "MEDIUM",
+      "current_price": 85000.0,
+      "indicators": {
+        "rsi": 77.75,
+        "rsi_signal": "OVERBOUGHT",
+        "sma_20": 71798.82,
+        "sma_50": 85000.0,
+        "trend": "SIDEWAYS"
+      },
+      "score": 40,
+      "signal": "SELL",
+      "stop_loss": 89250.0,
+      "take_profit": 76500.0,
+      "timestamp": "2025-07-25T03:11:24.210489",
+      "collection_time": "2025-07-25T04:11:25.243596",
+      "collection_order": 6,
+      "tech_analysis": {
+        "indicators": {
+          "momentum": "BULLISH",
+          "rsi": 40.5,
+          "rsi_signal": "NEUTRAL",
+          "sma_20": 69018.09,
+          "sma_50": 74896.57
+        },
+        "market_data": {
+          "change_24h": 0.0,
+          "market_cap_eur": 1650000000000,
+          "volume_24h_eur": 25000000000
+        },
+        "price": 85000.0,
+        "support_resistance": {
+          "resistance": 72386.22,
+          "support": 65734.05
+        },
+        "timestamp": "2025-07-25T03:11:24.340506",
+        "trend": "SIDEWAYS"
+      }
+    },
+    {
+      "confidence": "MEDIUM",
+      "current_price": 85000.0,
+      "indicators": {
+        "rsi": 33.33,
+        "rsi_signal": "NEUTRAL",
+        "sma_20": 69601.72,
+        "sma_50": 85000.0,
+        "trend": "SIDEWAYS"
+      },
+      "score": 50,
+      "signal": "HOLD",
+      "stop_loss": 82450.0,
+      "take_profit": 89250.0,
+      "timestamp": "2025-07-25T03:11:27.486091",
+      "collection_time": "2025-07-25T04:11:28.516860",
+      "collection_order": 7,
+      "tech_analysis": {
+        "indicators": {
+          "momentum": "BULLISH",
+          "rsi": 56.75,
+          "rsi_signal": "NEUTRAL",
+          "sma_20": 79273.17,
+          "sma_50": 79453.24
+        },
+        "market_data": {
+          "change_24h": 0.0,
+          "market_cap_eur": 1650000000000,
+          "volume_24h_eur": 25000000000
+        },
+        "price": 85000.0,
+        "support_resistance": {
+          "resistance": 83627.71,
+          "support": 73850.89
+        },
+        "timestamp": "2025-07-25T03:11:27.627216",
+        "trend": "SIDEWAYS"
+      }
+    },
+    {
+      "confidence": "MEDIUM",
+      "current_price": 85000.0,
+      "indicators": {
+        "rsi": 69.77,
+        "rsi_signal": "NEUTRAL",
+        "sma_20": 76933.69,
+        "sma_50": 85000.0,
+        "trend": "SIDEWAYS"
+      },
+      "score": 50,
+      "signal": "HOLD",
+      "stop_loss": 82450.0,
+      "take_profit": 89250.0,
+      "timestamp": "2025-07-25T03:11:30.772060",
+      "collection_time": "2025-07-25T04:11:31.803255",
+      "collection_order": 8,
+      "tech_analysis": {
+        "indicators": {
+          "momentum": "BULLISH",
+          "rsi": 41.99,
+          "rsi_signal": "NEUTRAL",
+          "sma_20": 66971.01,
+          "sma_50": 74793.81
+        },
+        "market_data": {
+          "change_24h": 0.0,
+          "market_cap_eur": 1650000000000,
+          "volume_24h_eur": 25000000000
+        },
+        "price": 85000.0,
+        "support_resistance": {
+          "resistance": 71624.97,
+          "support": 61241.36
+        },
+        "timestamp": "2025-07-25T03:11:30.911327",
+        "trend": "SIDEWAYS"
+      }
+    },
+    {
+      "confidence": "MEDIUM",
+      "current_price": 85000.0,
+      "indicators": {
+        "rsi": 28.92,
+        "rsi_signal": "OVERSOLD",
+        "sma_20": 98526.29,
+        "sma_50": 85000.0,
+        "trend": "SIDEWAYS"
+      },
+      "score": 60,
+      "signal": "BUY",
+      "stop_loss": 80750.0,
+      "take_profit": 93500.0,
+      "timestamp": "2025-07-25T03:11:34.072218",
+      "collection_time": "2025-07-25T04:11:35.104705",
+      "collection_order": 9,
+      "tech_analysis": {
+        "indicators": {
+          "momentum": "BULLISH",
+          "rsi": 28.77,
+          "rsi_signal": "OVERSOLD",
+          "sma_20": 81325.14,
+          "sma_50": 82889.58
+        },
+        "market_data": {
+          "change_24h": 0.0,
+          "market_cap_eur": 1650000000000,
+          "volume_24h_eur": 25000000000
+        },
+        "price": 85000.0,
+        "support_resistance": {
+          "resistance": 87112.31,
+          "support": 72661.16
+        },
+        "timestamp": "2025-07-25T03:11:34.204611",
+        "trend": "SIDEWAYS"
+      }
+    },
+    {
+      "confidence": "MEDIUM",
+      "current_price": 85000.0,
+      "indicators": {
+        "rsi": 74.16,
+        "rsi_signal": "OVERBOUGHT",
+        "sma_20": 117086.33,
+        "sma_50": 85000.0,
+        "trend": "SIDEWAYS"
+      },
+      "score": 40,
+      "signal": "SELL",
+      "stop_loss": 89250.0,
+      "take_profit": 76500.0,
+      "timestamp": "2025-07-25T03:11:37.390713",
+      "collection_time": "2025-07-25T04:11:38.421716",
+      "collection_order": 10,
+      "tech_analysis": {
+        "indicators": {
+          "momentum": "BEARISH",
+          "rsi": 61.77,
+          "rsi_signal": "NEUTRAL",
+          "sma_20": 86583.81,
+          "sma_50": 80832.63
+        },
+        "market_data": {
+          "change_24h": 0.0,
+          "market_cap_eur": 1650000000000,
+          "volume_24h_eur": 25000000000
+        },
+        "price": 85000.0,
+        "support_resistance": {
+          "resistance": 94791.53,
+          "support": 80744.18
+        },
+        "timestamp": "2025-07-25T03:11:37.598947",
+        "trend": "SIDEWAYS"
+      }
+    }
+  ]
+}
